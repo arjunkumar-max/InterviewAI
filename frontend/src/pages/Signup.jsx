@@ -56,7 +56,11 @@ const Signup = () => {
       setShowOtpModal(true);
       alert("📧 6-digit verification code sent to your Gmail/Phone!");
     } catch (err) {
-      setError(err.response?.data?.body || err.response?.data || "❌ Signup failed. This email/phone might already exist!");
+      const data = err.response?.data;
+      // Safely extract the string, whether it's under 'message', 'error', or is just a plain string
+      const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data : null) || "❌ Signup failed. This email/phone might already exist!";
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -87,7 +91,10 @@ const Signup = () => {
       alert("🎉 Account Verified Successfully! Welcome to InterviewAI.");
       navigate('/dashboard');
     } catch (err) {
-      setOtpError(err.response?.data || "❌ Invalid OTP! Please check your email again.");
+      const data = err.response?.data;
+      const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data : null) || "❌ Invalid OTP! Please check your email again.";
+      
+      setOtpError(errorMessage);
     } finally {
       setOtpLoading(false);
     }
