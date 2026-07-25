@@ -11,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
   // 🔥 Forgot Password ke liye naye states:
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotStep, setForgotStep] = useState(1); // Step 1: Email daalo, Step 2: OTP & New Pass daalo
@@ -18,6 +19,9 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [loadingOtp, setLoadingOtp] = useState(false);
+
+  // 🛡️ Fallback to '/api' if the env variable is undefined in production (Matches vercel.json)
+  const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
   // 🔥 STRICT PRO REGEX: Sirf @gmail.com ya Indian 10-digit number allow karega
   const validateInput = (input) => {
@@ -37,8 +41,7 @@ const Login = () => {
 
     setLoading(true);
     try {
-      // Changed to use environment variable
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
+      const res = await axios.post(`${API_URL}/auth/login`, {
         email: identifier,
         password: password
       });
@@ -50,7 +53,20 @@ const Login = () => {
 
       navigate('/dashboard');
     } catch (err) {
-      setError("❌ Invalid credentials. Please try again!");
+      // 🛡️ Strict String Extraction to prevent React Error #31 & show real backend errors
+      let errorMessage = "❌ Invalid credentials. Please try again!";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (typeof err.response.data.message === 'string') {
+          errorMessage = err.response.data.message;
+        } else if (typeof err.response.data.error === 'string') {
+          errorMessage = err.response.data.error;
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -61,14 +77,18 @@ const Login = () => {
     e.preventDefault();
     setLoadingOtp(true);
     try {
-      // Changed to use environment variable
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password/send-otp`, {
+      const res = await axios.post(`${API_URL}/auth/forgot-password/send-otp`, {
         email: forgotEmail,
       });
       alert(res.data.message || "OTP sent successfully! Check your Gmail 📬");
       setForgotStep(2); // Step 2 (OTP box) par bhejo
     } catch (err) {
-      alert(err.response?.data?.message || "Error sending OTP! Please try again.");
+      // Safe alert extraction
+      let errorMsg = "Error sending OTP! Please try again.";
+      if (typeof err.response?.data?.message === 'string') {
+        errorMsg = err.response.data.message;
+      }
+      alert(errorMsg);
     } finally {
       setLoadingOtp(false);
     }
@@ -78,8 +98,7 @@ const Login = () => {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     try {
-      // Changed to use environment variable
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password/reset`, {
+      const res = await axios.post(`${API_URL}/auth/forgot-password/reset`, {
         email: forgotEmail,
         otp: otp,
         newPassword: newPassword,
@@ -88,7 +107,12 @@ const Login = () => {
       setShowForgotModal(false); // Modal band kar do
       setForgotStep(1);
     } catch (err) {
-      alert(err.response?.data?.message || "Invalid OTP! Please try again.");
+      // Safe alert extraction
+      let errorMsg = "Invalid OTP! Please try again.";
+      if (typeof err.response?.data?.message === 'string') {
+        errorMsg = err.response.data.message;
+      }
+      alert(errorMsg);
     }
   };
 
@@ -150,7 +174,7 @@ const Login = () => {
                   setShowForgotModal(true);
                   setForgotStep(1);
                 }}
-                className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+                className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
               >
                 Forgot Password? 🔐
               </button></div>
@@ -159,7 +183,7 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-black font-extrabold py-3.5 rounded-xl transition shadow-lg shadow-green-500/20 cursor-pointer mt-2"
+            className="w-full bg-linear-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-black font-extrabold py-3.5 rounded-xl transition shadow-lg shadow-green-500/20 cursor-pointer mt-2 disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login 🚀"}
           </button>
@@ -182,8 +206,7 @@ const Login = () => {
                 const decoded = jwtDecode(credentialResponse.credential);
                 console.log("🌐 Google User Info:", decoded);
 
-                // Changed to use environment variable
-                const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/google-login`, {
+                const res = await axios.post(`${API_URL}/auth/google-login`, {
                   email: decoded.email,
                   name: decoded.name,
                   picture: decoded.picture
@@ -194,7 +217,13 @@ const Login = () => {
                 navigate('/dashboard');
               } catch (err) {
                 console.error("Backend Google Auth Error:", err);
-                setError("❌ Google Login failed on server! Please try again.");
+                
+                let errorMessage = "❌ Google Login failed on server! Please try again.";
+                if (err.response?.data) {
+                  if (typeof err.response.data === 'string') errorMessage = err.response.data;
+                  else if (typeof err.response.data.message === 'string') errorMessage = err.response.data.message;
+                }
+                setError(errorMessage);
               }
             }}
             onError={() => {
@@ -224,7 +253,7 @@ const Login = () => {
             {/* Close Button */}
             <button
               onClick={() => setShowForgotModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl"
+              className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer"
             >
               ✕
             </button>
@@ -255,7 +284,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={loadingOtp}
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 font-semibold py-2.5 rounded-lg text-white transition-all shadow-lg"
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 font-semibold py-2.5 rounded-lg text-white transition-all shadow-lg cursor-pointer disabled:opacity-50"
                 >
                   {loadingOtp ? "Sending OTP... ⏳" : "Send OTP 🚀"}
                 </button>
@@ -288,7 +317,7 @@ const Login = () => {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-green-600 hover:bg-green-500 font-semibold py-2.5 rounded-lg text-white transition-all shadow-lg mt-2"
+                  className="w-full bg-green-600 hover:bg-green-500 font-semibold py-2.5 rounded-lg text-white transition-all shadow-lg mt-2 cursor-pointer"
                 >
                   Reset & Save Password ✨
                 </button>

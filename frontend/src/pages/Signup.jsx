@@ -20,6 +20,9 @@ const Signup = () => {
 
   const navigate = useNavigate();
 
+  // Fallback to '/api' if the env variable is undefined in production
+  const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
   const validateInput = (input) => {
     const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
     const phoneRegex = /^[6-9]\d{9}$/;
@@ -45,8 +48,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      // Changed to use environment variable
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/signup`, {
+      await axios.post(`${API_URL}/auth/signup`, {
         name: name,
         email: identifier,
         password: password
@@ -56,9 +58,21 @@ const Signup = () => {
       setShowOtpModal(true);
       alert("📧 6-digit verification code sent to your Gmail/Phone!");
     } catch (err) {
-      const data = err.response?.data;
-      // Safely extract the string, whether it's under 'message', 'error', or is just a plain string
-      const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data : null) || "❌ Signup failed. This email/phone might already exist!";
+      // 🛡️ Strict String Extraction to prevent React Error #31
+      let errorMessage = "❌ Signup failed. This email/phone might already exist!";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (typeof err.response.data.message === 'string') {
+          errorMessage = err.response.data.message;
+        } else if (typeof err.response.data.error === 'string') {
+          errorMessage = err.response.data.error;
+        } else {
+          errorMessage = JSON.stringify(err.response.data);
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
       
       setError(errorMessage);
     } finally {
@@ -80,8 +94,7 @@ const Signup = () => {
 
     setOtpLoading(true);
     try {
-      // Changed to use environment variable
-      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/verify-otp`, {
+      const res = await axios.post(`${API_URL}/auth/verify-otp`, {
         email: identifier,
         otp: enteredOtp
       });
@@ -91,8 +104,21 @@ const Signup = () => {
       alert("🎉 Account Verified Successfully! Welcome to InterviewAI.");
       navigate('/dashboard');
     } catch (err) {
-      const data = err.response?.data;
-      const errorMessage = data?.message || data?.error || (typeof data === 'string' ? data : null) || "❌ Invalid OTP! Please check your email again.";
+      // 🛡️ Strict String Extraction to prevent React Error #31
+      let errorMessage = "❌ Invalid OTP! Please check your email again.";
+      if (err.response?.data) {
+        if (typeof err.response.data === 'string') {
+          errorMessage = err.response.data;
+        } else if (typeof err.response.data.message === 'string') {
+          errorMessage = err.response.data.message;
+        } else if (typeof err.response.data.error === 'string') {
+          errorMessage = err.response.data.error;
+        } else {
+          errorMessage = JSON.stringify(err.response.data);
+        }
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
       
       setOtpError(errorMessage);
     } finally {
@@ -206,8 +232,7 @@ const Signup = () => {
                 const decoded = jwtDecode(credentialResponse.credential);
                 console.log("🌐 Google User Info:", decoded);
 
-                // Changed to use environment variable
-                const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/google-login`, {
+                const res = await axios.post(`${API_URL}/auth/google-login`, {
                   email: decoded.email,
                   name: decoded.name,
                   picture: decoded.picture
@@ -218,7 +243,13 @@ const Signup = () => {
                 navigate('/dashboard');
               } catch (err) {
                 console.error("Backend Google Auth Error:", err);
-                setError("❌ Google Signup failed on server! Please try again.");
+                
+                let errorMessage = "❌ Google Signup failed on server! Please try again.";
+                if (err.response?.data) {
+                  if (typeof err.response.data === 'string') errorMessage = err.response.data;
+                  else if (typeof err.response.data.message === 'string') errorMessage = err.response.data.message;
+                }
+                setError(errorMessage);
               }
             }}
             onError={() => {
