@@ -101,6 +101,7 @@ const Signup = () => {
 
       // 🔥 Token save karo aur direct Dashboard par bhejo!
       localStorage.setItem('token', res.data.token);
+      localStorage.setItem('userEmail', identifier);
       alert("🎉 Account Verified Successfully! Welcome to InterviewAI.");
       navigate('/dashboard');
     } catch (err) {
@@ -239,6 +240,7 @@ const Signup = () => {
                 });
 
                 localStorage.setItem('token', res.data.token);
+                localStorage.setItem('userEmail', decoded.email);
                 alert(`🎉 Account Created! Welcome ${decoded.name}!`);
                 navigate('/dashboard');
               } catch (err) {
