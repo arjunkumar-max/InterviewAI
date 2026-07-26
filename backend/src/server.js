@@ -13,8 +13,16 @@ connectDB();
 
 const app = express();
 
+app.use(cors({
+  origin: [
+    "https://interview-ai-frontend-beta-coral.vercel.app", // Your live frontend
+    "http://localhost:5173" // For your local development
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+
 app.use(helmet());
-app.use(cors());
 app.use(express.json());
 
 // 1. ADDED ROOT ROUTE: Prevents 404 on the main Vercel URL
