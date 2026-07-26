@@ -124,3 +124,38 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Google Login Controller
+export const googleLogin = async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const randomPassword = Math.random().toString(36).slice(-8); 
+      user = await User.create({ 
+        name: name, 
+        email: email, 
+        password: randomPassword, 
+        isVerified: true 
+      });
+    } else if (!user.isVerified) {
+      user.isVerified = true;
+      await user.save();
+    }
+
+    // Success response - same jaise tune normal login mein bheja hai
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: generateToken(user._id),
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
