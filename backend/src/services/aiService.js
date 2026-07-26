@@ -3,6 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+const key = process.env.GEMINI_API_KEY;
+console.log("🔑 --- API KEY DEBUG CHECK ---");
+console.log("Is Key Undefined?", key === undefined);
+console.log("Key Length:", key ? key.length : "N/A");
+console.log("Starts with:", key ? key.substring(0, 4) : "N/A");
+console.log("Ends with quote?", key ? key.endsWith('"') || key.endsWith("'") : "N/A");
+console.log("------------------------------");
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Updated to the current stable model string
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); 
