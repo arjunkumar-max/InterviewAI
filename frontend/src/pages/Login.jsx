@@ -47,9 +47,7 @@ const Login = () => {
       });
 
       localStorage.setItem('token', res.data.token || res.data);
-      
-      // 🔥 YE WALI LINE ADD KARNI HAI:
-      localStorage.setItem('userEmail', identifier); 
+      localStorage.setItem('userEmail', identifier);
 
       navigate('/dashboard');
     } catch (err) {
@@ -213,6 +211,7 @@ const Login = () => {
                 });
 
                 localStorage.setItem('token', res.data.token);
+                localStorage.setItem('userEmail', decoded.email);
                 alert(`🎉 Welcome ${decoded.name}! Logged in with Google.`);
                 navigate('/dashboard');
               } catch (err) {
