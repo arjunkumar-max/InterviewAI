@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 export const connectDB = async () => {
   // 1. Agar pehle se connected hai, toh wahi use karo (Vercel Fix)
+  // testing my new mongodb connection
   if (mongoose.connection.readyState >= 1) {
     console.log("MongoDB is already connected.");
     return;
