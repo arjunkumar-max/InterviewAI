@@ -1,19 +1,28 @@
 import mongoose from 'mongoose';
 
+// Vercel container mein state save rakhne ke liye global variable
+let isConnected = false; 
+
 export const connectDB = async () => {
-  // 1. Agar pehle se connected hai, toh wahi use karo (Vercel Fix)
-  // testing my new mongodb connection
-  if (mongoose.connection.readyState >= 1) {
-    console.log("MongoDB is already connected.");
+  // 1. Agar sach mein connected hai, toh purana connection use karo
+  if (isConnected) {
+    console.log("=> Using existing database connection");
     return;
   }
 
   // 2. Naya connection banao
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    console.log("=> Connecting to MongoDB...");
+    const db = await mongoose.connect(process.env.MONGO_URI, {
+      // Yeh line sabse zaroori hai Vercel ke liye! Buffering timeout rokne ke liye.
+      serverSelectionTimeoutMS: 5000, 
+    });
+
+    // Connection successful hone par state update kar do
+    isConnected = db.connections[0].readyState === 1;
+    console.log(`=> MongoDB Connected: ${db.connection.host}`);
+    
   } catch (error) {
-    console.error(`Database connection error: ${error.message}`);
-    // DHYAAN DE: Maine yahan se process.exit(1) hata diya hai!
+    console.log(`=> Database connection error: ${error.message}`);
   }
 };
