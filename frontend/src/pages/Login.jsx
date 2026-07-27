@@ -139,7 +139,7 @@ const Login = () => {
               type="text"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              placeholder="example@gmail.com or 98********"
+              placeholder="example@gmail.com"
               required
               className="w-full bg-[#1e1e1e] border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 transition"
             />
