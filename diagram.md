@@ -37,13 +37,8 @@ graph TD
     Multer -->|Raw PDF Text| Gemini
     Node <-->|Batch QA Payloads| Gemini
 
-    classDef client fill:#0f172a,stroke:#3b82f6,stroke-width:2px,color:#fff;
-    classDef server fill:#14532d,stroke:#22c55e,stroke-width:2px,color:#fff;
-    classDef db fill:#451a03,stroke:#f59e0b,stroke-width:2px,color:#fff;
-    classDef ai fill:#312e81,stroke:#8b5cf6,stroke-width:2px,color:#fff;
-    
-    class UI,State,Mic client;
-    class Node,Auth,Multer server;
-    class Mongo,UserSchema,TestSchema db;
-    class Gemini ai;
+    %% Academic Monochrome Styling
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:1px,color:#000000;
+    classDef db fill:#f8f9fa,stroke:#000000,stroke-width:1px,color:#000000;
+    class State,Mongo,UserSchema,TestSchema db;
 ```
