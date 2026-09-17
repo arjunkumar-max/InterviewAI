@@ -14,6 +14,8 @@ flowchart TD
         H5 --> H6[Holistic AI Report Card]
     end
 
-    style Traditional fill:#7f1d1d,stroke:#fca5a5,color:#fff
-    style HireSense fill:#14532d,stroke:#86efac,color:#fff
+    %% Academic Monochrome Styling
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:1px,color:#000000;
+    style Traditional fill:#ffffff,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5;
+    style HireSense fill:#f4f4f4,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5;
 ```
