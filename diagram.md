@@ -1,3 +1,4 @@
+```mermaid
 graph TD
     subgraph Client [Client Tier: Frontend]
         UI[React UI via Vite]
@@ -45,3 +46,4 @@ graph TD
     class Node,Auth,Multer server;
     class Mongo,UserSchema,TestSchema db;
     class Gemini ai;
+```
