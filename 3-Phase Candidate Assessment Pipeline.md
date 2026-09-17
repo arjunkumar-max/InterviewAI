@@ -28,6 +28,10 @@ flowchart LR
         L --> M([Placement Report Card])
     end
 
-    classDef phase fill:#1e293b,stroke:#cbd5e1,stroke-width:1px,color:#fff;
-    class P1,P2,P3,Final phase;
+    %% Academic Monochrome Styling
+    classDef default fill:#ffffff,stroke:#000000,stroke-width:1px,color:#000000;
+    style P1 fill:#fcfcfc,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5;
+    style P2 fill:#fcfcfc,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5;
+    style P3 fill:#fcfcfc,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5;
+    style Final fill:#fcfcfc,stroke:#000000,stroke-width:1px,stroke-dasharray: 5 5;
 ```
